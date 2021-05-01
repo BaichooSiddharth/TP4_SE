@@ -105,11 +105,12 @@ bool file_has_name(FAT_entry *entry, char *name) {
         i = counter_name;
     }
 
-    if(i<10){
-        u_int8_t value = name_dir[i++];
+    while(i<10){
+        u_int8_t value = name_dir[i];
         if(value!=0x20 && value!=0x00){
             return false;
         }
+        i++;
     }
     return true;
 }
@@ -216,9 +217,9 @@ int main() {
     entry.DIR_Name[5] = 32;
     entry.DIR_Name[6] = 32;
     entry.DIR_Name[7] = 32;
-    entry.DIR_Name[8] = 32;
-    entry.DIR_Name[9] = 32;
-    entry.DIR_Name[10] = 32;
+    entry.DIR_Name[8] = 65;
+    entry.DIR_Name[9] = 65;
+    entry.DIR_Name[10] = 65;
     bool result = file_has_name(&(entry), name);
     printf("result = %d", result);
     return 0;

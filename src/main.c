@@ -170,10 +170,11 @@ error_code break_up_path(char *path, uint8_t level, char **output) {
         return -3;
     }
     for (i=0; i<counter_word; i++){
-        final[i] = temp[i];
+        final[i] = toupper(temp[i]);
     }
     final[i] = '\0';
     *output = final;
+    free(temp);
     return 0;
 }
 

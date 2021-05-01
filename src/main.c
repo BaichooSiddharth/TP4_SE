@@ -67,7 +67,7 @@ bool file_has_name(FAT_entry *entry, char *name) {
     u_int8_t current;
     while(counter_name<8){
         current_read = name[counter_name];
-        if(current_read == '.' || current_read == ' '){
+        if(current_read == '.' || current_read == ' ' || current_read == '\0'){
             if(counter_name==0){
                 return false;
             } else {
@@ -101,6 +101,8 @@ bool file_has_name(FAT_entry *entry, char *name) {
                 return false;
             }
         }
+    } else {
+        i = counter_name;
     }
 
     if(i<10){
@@ -204,7 +206,7 @@ read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_le
 
 int main() {
 // ous pouvez ajouter des tests pour les fonctions ici
-    char *name = "ANAME ";
+    char *name = "ANAME";
     FAT_entry entry;
     entry.DIR_Name[0] = 65;
     entry.DIR_Name[1] = 78;

@@ -26,6 +26,7 @@ uint8_t ilog2(uint32_t n) {
  * @return le LBA
  */
 uint32_t cluster_to_lba(BPB *block, uint32_t cluster, uint32_t first_data_sector) {
+    /*
     printf("rsvd = %d", as_uint32(block->BPB_RsvdSecCnt));
     printf("hidden = %d", as_uint32(block->BPB_HiddSec));
     printf("no_fats = %d", block->BPB_NumFATs);
@@ -36,6 +37,8 @@ uint32_t cluster_to_lba(BPB *block, uint32_t cluster, uint32_t first_data_sector
     printf("first_data_sector = %d", first_data_sector);
     printf("SectorPerCluster = %d", block->BPB_SecPerClus);
     return (begin + (cluster - first_data_sector) * block->BPB_SecPerClus);
+     */
+    return 0;
 }
 
 /**
@@ -93,6 +96,7 @@ error_code break_up_path(char *path, uint8_t level, char **output) {
  * @return un src d'erreur
  */
 error_code read_boot_block(FILE *archive, BPB **block) {
+
     return 0;
 }
 

@@ -26,7 +26,8 @@ uint8_t ilog2(uint32_t n) {
  * @return le LBA
  */
 uint32_t cluster_to_lba(BPB *block, uint32_t cluster, uint32_t first_data_sector) {
-    return 0;
+    u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + block->BPB_HiddSec + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+    return (begin + (cluster - first_data_sector) * block->BPB_SecPerClus);
 }
 
 /**

@@ -44,6 +44,7 @@ error_code get_cluster_chain_value(BPB *block,
                                    uint32_t cluster,
                                    uint32_t *value,
                                    FILE *archive) {
+    //uint32_t toLba = cluster_to_lba(block, cluster);
     return 0;
 }
 
@@ -123,6 +124,56 @@ bool file_has_name(FAT_entry *entry, char *name) {
  * -3 si out of memory
  */
 error_code break_up_path(char *path, uint8_t level, char **output) {
+    if(!path || level < 0 || !output){
+        return -1;
+    }
+    char *temp = malloc(sizeof (char) * 64);
+    if(!temp){
+        return -3;
+    }
+    int num_levels = 0;
+    int i = 0;
+    char c = path[i];
+    while (c!='\0'){
+        if(i!=0){
+            if(c == '/'){
+                num_levels++;
+            }
+        }
+        i++;
+        c = path[i];
+    }
+    if(num_levels < level){
+        return -2;
+    }
+    i=0;
+    int counter = 0;
+    int counter_word = 0;
+    while (path[i]!='\0'){
+        if(path[i] == '/'){
+            if(i!=0){
+                counter++;
+            }
+        } else {
+            if(counter == level){
+                temp[counter_word] = path[i];
+                counter_word++;
+            }
+        }
+        if(counter>level){
+            break;
+        }
+        i++;
+    }
+    char *final = malloc(sizeof (char)*(counter_word+1));
+    if(!final){
+        return -3;
+    }
+    for (i=0; i<counter_word; i++){
+        final[i] = temp[i];
+    }
+    final[i] = '\0';
+    *output = final;
     return 0;
 }
 
@@ -203,21 +254,10 @@ read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_le
 
 int main() {
 // ous pouvez ajouter des tests pour les fonctions ici
-    char *name = "ANAME";
-    FAT_entry entry;
-    entry.DIR_Name[0] = 65;
-    entry.DIR_Name[1] = 78;
-    entry.DIR_Name[2] = 65;
-    entry.DIR_Name[3] = 77;
-    entry.DIR_Name[4] = 69;
-    entry.DIR_Name[5] = 32;
-    entry.DIR_Name[6] = 32;
-    entry.DIR_Name[7] = 32;
-    entry.DIR_Name[8] = 65;
-    entry.DIR_Name[9] = 65;
-    entry.DIR_Name[10] = 65;
-    bool result = file_has_name(&(entry), name);
-    printf("result = %d", result);
+    char **temp = malloc(sizeof (char *));
+    int error = break_up_path("/dossier/dossier2/fichier.ext", 0,temp);
+    printf("\nresult = %d", error);
+    printf("\ntemp = %s", *temp);
     return 0;
 }
 

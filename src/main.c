@@ -96,7 +96,39 @@ error_code break_up_path(char *path, uint8_t level, char **output) {
  * @return un src d'erreur
  */
 error_code read_boot_block(FILE *archive, BPB **block) {
-
+    BPB *bpb = malloc (sizeof(BPB));
+    if(!bpb){
+        return OUT_OF_MEM;
+    }
+    fseek(archive,0, SEEK_SET);
+    fread(bpb->BS_jmpBoot, 1,3,archive);
+    fread(bpb->BS_OEMName, 1,8,archive);
+    fread(bpb->BPB_BytsPerSec, 1,2, archive);
+    fread(&(bpb->BPB_SecPerClus), 1,1, archive);
+    fread(bpb->BPB_RsvdSecCnt, 1,2,archive);
+    fread(&(bpb->BPB_NumFATs), 1, 1,archive);
+    fread(bpb->BPB_RootEntCnt, 1, 2, archive);
+    fread(bpb->BPB_TotSec16, 1, 2, archive);
+    fread(&(bpb->BPB_Media), 1, 1, archive);
+    fread(bpb->BPB_FATSz16, 1, 2, archive);
+    fread(bpb->BPB_SecPerTrk, 1, 2, archive);
+    fread(bpb->BPB_NumHeads, 1, 2, archive);
+    fread(bpb->BPB_HiddSec, 1, 4, archive);
+    fread(bpb->BPB_TotSec32, 1, 4, archive);
+    fread(bpb->BPB_FATSz32, 1, 4, archive);
+    fread(bpb->BPB_ExtFlags, 1, 2, archive);
+    fread(bpb->BPB_FSVer, 1, 2, archive);
+    fread(bpb->BPB_RootClus, 1, 4, archive);
+    fread(bpb->BPB_FSInfo, 1, 2, archive);
+    fread(bpb->BPB_BkBootSec, 1, 2, archive);
+    fread(bpb->BPB_Reserved, 1, 12, archive);
+    fread(&(bpb->BS_DrvNum), 1, 1, archive);
+    fread(&(bpb->BS_Reserved1), 1, 1, archive);
+    fread(&(bpb->BS_BootSig), 1, 1, archive);
+    fread(bpb->BS_VolID, 1, 4, archive);
+    fread(bpb->BS_VolLab, 1, 11, archive);
+    fread(bpb->BS_FilSysType, 1, 8, archive);
+    *block = bpb;
     return 0;
 }
 

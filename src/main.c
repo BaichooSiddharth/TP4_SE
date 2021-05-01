@@ -65,6 +65,7 @@ bool file_has_name(FAT_entry *entry, char *name) {
     int counter_name= 0;
     int i = 8;
     u_int8_t current;
+    //on check le début (avant l'extension) inspiré de la docu fat32 de microsoft
     while(counter_name<8){
         current_read = name[counter_name];
         if(current_read == '.' || current_read == ' ' || current_read == '\0'){
@@ -75,15 +76,13 @@ bool file_has_name(FAT_entry *entry, char *name) {
             }
         }
         current = (u_int8_t)(toupper(current_read));
-        printf("\nchar_name = %c ", current_read);
-        printf("char_name_conv = %d ", current);
-        printf("char_dir = %d \n", name_dir[counter_name]);
         if(current == name_dir[counter_name]){
             counter_name++;
         } else {
             return false;
         }
     }
+    // check pour extension
     if(current_read != '\0' && current_read != ' '){
         counter_name++;
         for(i=8; i<11; i++){
@@ -92,9 +91,6 @@ bool file_has_name(FAT_entry *entry, char *name) {
                 break;
             }
             current = (u_int8_t)(toupper(current_read));
-            printf("\nchar_name = %c ", current_read);
-            printf("char_name_conv = %d ", current);
-            printf("char_dir = %d \n", name_dir[i]);
             if(current == name_dir[i]){
                 counter_name++;
             } else {

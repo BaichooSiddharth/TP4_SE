@@ -57,7 +57,56 @@ error_code get_cluster_chain_value(BPB *block,
  * @return 0 ou 1 (faux ou vrai)
  */
 bool file_has_name(FAT_entry *entry, char *name) {
-    return 0;
+    u_int8_t *name_dir = entry->DIR_Name;
+    if(name_dir[0]==0xE5 || name_dir[0]==0x00){
+        return false;
+    }
+    char current_read;
+    int counter_name= 0;
+    int i;
+    u_int8_t current;
+    while(counter_name<8){
+        current_read = name[counter_name];
+        if(current_read == '.'){
+            if(counter_name==0){
+                return false;
+            } else {
+                break;
+            }
+        }
+        current = (u_int8_t)(toupper(current_read));
+        printf("\nchar_name = %d ", current_read);
+        printf("char_name_conv = %d ", current);
+        printf("char_dir = %d \n", name_dir[counter_name]);
+        if(current == name_dir[counter_name]){
+            counter_name++;
+        } else {
+            return false;
+        }
+    }
+    counter_name++;
+    for(i=8; i<11; i++){
+        current_read = name[counter_name];
+        if(current_read == '\0'){
+            break;
+        }
+        current = (u_int8_t)(toupper(current_read));
+        printf("\nchar_name = %d ", current_read);
+        printf("char_name_conv = %d ", current);
+        printf("char_dir = %d \n", name_dir[counter_name]);
+        if(current == name_dir[i]){
+            counter_name++;
+        } else {
+            return false;
+        }
+    }
+    if(i<10){
+        u_int8_t value = name_dir[i++];
+        if(value!=0x00){
+            return false;
+        }
+    }
+    return true;
 }
 
 /**

@@ -93,7 +93,7 @@ bool file_has_name(FAT_entry *entry, char *name) {
         current = (u_int8_t)(toupper(current_read));
         printf("\nchar_name = %c ", current_read);
         printf("char_name_conv = %d ", current);
-        printf("char_dir = %d \n", name_dir[counter_name]);
+        printf("char_dir = %d \n", name_dir[i]);
         if(current == name_dir[i]){
             counter_name++;
         } else {

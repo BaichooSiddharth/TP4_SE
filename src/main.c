@@ -26,7 +26,15 @@ uint8_t ilog2(uint32_t n) {
  * @return le LBA
  */
 uint32_t cluster_to_lba(BPB *block, uint32_t cluster, uint32_t first_data_sector) {
-    u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + block->BPB_HiddSec + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+    printf("rsvd = %d", as_uint32(block->BPB_RsvdSecCnt));
+    printf("hidden = %d", as_uint32(block->BPB_HiddSec));
+    printf("no_fats = %d", block->BPB_NumFATs);
+    printf("fat_size = %d", as_uint32(block->BPB_FATSz32));
+    u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+    printf("begin = %d", begin);
+    printf("cluster = %d", cluster);
+    printf("first_data_sector = %d", first_data_sector);
+    printf("SectorPerCluster = %d", block->BPB_SecPerClus);
     return (begin + (cluster - first_data_sector) * block->BPB_SecPerClus);
 }
 

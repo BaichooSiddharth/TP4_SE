@@ -63,11 +63,11 @@ bool file_has_name(FAT_entry *entry, char *name) {
     }
     char current_read;
     int counter_name= 0;
-    int i;
+    int i = 8;
     u_int8_t current;
     while(counter_name<8){
         current_read = name[counter_name];
-        if(current_read == '.' || current_read == '\0'){
+        if(current_read == '.' || current_read == ' '){
             if(counter_name==0){
                 return false;
             } else {
@@ -84,22 +84,25 @@ bool file_has_name(FAT_entry *entry, char *name) {
             return false;
         }
     }
-    counter_name++;
-    for(i=8; i<11; i++){
-        current_read = name[counter_name];
-        if(current_read == '\0' || current_read == ' '){
-            break;
-        }
-        current = (u_int8_t)(toupper(current_read));
-        printf("\nchar_name = %c ", current_read);
-        printf("char_name_conv = %d ", current);
-        printf("char_dir = %d \n", name_dir[i]);
-        if(current == name_dir[i]){
-            counter_name++;
-        } else {
-            return false;
+    if(current_read != '\0' && current_read != ' '){
+        counter_name++;
+        for(i=8; i<11; i++){
+            current_read = name[counter_name];
+            if(current_read == '\0' || current_read == ' '){
+                break;
+            }
+            current = (u_int8_t)(toupper(current_read));
+            printf("\nchar_name = %c ", current_read);
+            printf("char_name_conv = %d ", current);
+            printf("char_dir = %d \n", name_dir[i]);
+            if(current == name_dir[i]){
+                counter_name++;
+            } else {
+                return false;
+            }
         }
     }
+
     if(i<10){
         u_int8_t value = name_dir[i++];
         if(value!=0x20 && value!=0x00){
@@ -201,7 +204,21 @@ read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_le
 
 int main() {
 // ous pouvez ajouter des tests pour les fonctions ici
-
+    char *name = "ANAME ";
+    FAT_entry entry;
+    entry.DIR_Name[0] = 65;
+    entry.DIR_Name[1] = 78;
+    entry.DIR_Name[2] = 65;
+    entry.DIR_Name[3] = 77;
+    entry.DIR_Name[4] = 69;
+    entry.DIR_Name[5] = 32;
+    entry.DIR_Name[6] = 32;
+    entry.DIR_Name[7] = 32;
+    entry.DIR_Name[8] = 32;
+    entry.DIR_Name[9] = 32;
+    entry.DIR_Name[10] = 32;
+    bool result = file_has_name(&(entry), name);
+    printf("result = %d", result);
     return 0;
 }
 

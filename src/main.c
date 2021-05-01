@@ -102,7 +102,7 @@ bool file_has_name(FAT_entry *entry, char *name) {
     }
     if(i<10){
         u_int8_t value = name_dir[i++];
-        if(value!=0x20){
+        if(value!=0x20 && value!=0x00){
             return false;
         }
     }

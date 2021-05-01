@@ -67,7 +67,7 @@ bool file_has_name(FAT_entry *entry, char *name) {
     u_int8_t current;
     while(counter_name<8){
         current_read = name[counter_name];
-        if(current_read == '.'){
+        if(current_read == '.' || current_read == ' '){
             if(counter_name==0){
                 return false;
             } else {
@@ -87,7 +87,7 @@ bool file_has_name(FAT_entry *entry, char *name) {
     counter_name++;
     for(i=8; i<11; i++){
         current_read = name[counter_name];
-        if(current_read == '\0'){
+        if(current_read == '\0' || current_read == ' '){
             break;
         }
         current = (u_int8_t)(toupper(current_read));

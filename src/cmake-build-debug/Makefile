@@ -67,10 +67,10 @@ RM = /snap/clion/151/bin/cmake/linux/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/siddharth/Desktop/repoSid/TP4/src
+CMAKE_SOURCE_DIR = /home/albi/Documents/sys/tp4/tp4-wisteria-hare/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/siddharth/Desktop/repoSid/TP4/src/cmake-build-debug
+CMAKE_BINARY_DIR = /home/albi/Documents/sys/tp4/tp4-wisteria-hare/src/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -99,9 +99,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/siddharth/Desktop/repoSid/TP4/src/cmake-build-debug/CMakeFiles /home/siddharth/Desktop/repoSid/TP4/src/cmake-build-debug//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/albi/Documents/sys/tp4/tp4-wisteria-hare/src/cmake-build-debug/CMakeFiles /home/albi/Documents/sys/tp4/tp4-wisteria-hare/src/cmake-build-debug//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/siddharth/Desktop/repoSid/TP4/src/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/albi/Documents/sys/tp4/tp4-wisteria-hare/src/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

@@ -46,7 +46,8 @@ error_code get_cluster_chain_value(BPB *block,
                                    FILE *archive) {
 
     uint32_t FAT_start = as_uint32(block->BPB_RsvdSecCnt) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
-    fseek(archive,(FAT_start+(block->BPB_SecPerClus)*(cluster-2)),SEEK_SET);
+    uint32_t logical_address = cluster_to_lba(block, cluster, FAT_start);
+    fseek(archive,logical_address,SEEK_SET);
     fread(value,1,4,archive);
 
     return 0;

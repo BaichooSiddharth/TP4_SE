@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/home/albi/Documents/sys/tp4/tp4-wisteria-hare/src/main.c" "/home/albi/Documents/sys/tp4/tp4-wisteria-hare/src/cmake-build-debug/CMakeFiles/TP4.dir/main.c.o"
+  "/home/siddharth/Desktop/repoSid/TP4/src/main.c" "/home/siddharth/Desktop/repoSid/TP4/src/cmake-build-debug/CMakeFiles/TP4.dir/main.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

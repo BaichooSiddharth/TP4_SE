@@ -45,9 +45,9 @@ error_code get_cluster_chain_value(BPB *block,
                                    uint32_t *value,
                                    FILE *archive) {
 
-    uint32_t FAT_start = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec);
-    fseek(archive,FAT_start+32*cluster,SEEK_SET);
-    fread(value,4,1,archive);
+    uint32_t FAT_start = as_uint32(block->BPB_RsvdSecCnt) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
+    fseek(archive,(FAT_start+(block->BPB_SecPerClus)*cluster),SEEK_SET);
+    fread(value,1,4,archive);
     fclose(archive);
 
     return 0;
@@ -226,6 +226,7 @@ error_code read_boot_block(FILE *archive, BPB **block) {
     fread(bpb->BS_VolLab, 1, 11, archive);
     fread(bpb->BS_FilSysType, 1, 8, archive);
     *block = bpb;
+    fclose(archive);
     return 0;
 }
 

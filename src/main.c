@@ -263,6 +263,7 @@ bool isFile(char *filename){
  */
 error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry **entry) {
     //pour vérifier le path que l'on a obtenu
+    /*
     int num_levels = 0;
     int i = 0;
     char c = path[i];
@@ -359,7 +360,7 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
         }
     }
     *entry = temporary_entry;
-
+    */
     return 0;
 }
 

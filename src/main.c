@@ -289,6 +289,7 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     int numBlocks = 0;
     //on commence a partir du premier secteur de données
     u_int32_t begin = as_uint16(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+    printf("\nbegin = %d\n", begin);
     uint32_t currentCluster = 2;
     uint32_t current_logical_address;
     uint32_t nextCLuster;

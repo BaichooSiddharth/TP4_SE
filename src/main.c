@@ -68,12 +68,9 @@ bool file_has_name(FAT_entry *entry, char *name) {
     if(name_dir[0]==0xE5 || name_dir[0]==0x00){
         return false;
     }
-    printf("\n");
     for(int iter = 0; iter < 11; iter++){
         char c = name_dir[iter];
-        printf("%c", c);
     }
-    printf("\n");
     char current_read;
     int counter_name= 0;
     int i;
@@ -263,6 +260,7 @@ bool isFile(char *filename){
  */
 error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry **entry) {
     //pour vérifier le path que l'on a obtenu
+    /*
     int num_levels = 0;
     int i = 0;
     char c = path[i];
@@ -302,7 +300,6 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     if(num_levels>0){
         while (i<num_levels){
             break_up_path(path, i, current_Name);
-            printf(*current_Name);
             while(!(currentCluster & FAT_EOC_TAG)){
                 get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
                 current_logical_address = cluster_to_lba(block, currentCluster, begin);
@@ -332,7 +329,6 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
         }
     } else {
         break_up_path(path, 0, current_Name);
-        printf(*current_Name);
         while(!(currentCluster & FAT_EOC_TAG)){
             get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
             current_logical_address = cluster_to_lba(block, currentCluster, begin);
@@ -359,7 +355,7 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
         }
     }
     *entry = temporary_entry;
-
+    */
     return 0;
 }
 

@@ -26,7 +26,8 @@ uint8_t ilog2(uint32_t n) {
  * @return le LBA
  */
 uint32_t cluster_to_lba(BPB *block, uint32_t cluster, uint32_t first_data_sector) {
-    u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+//u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+    u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
     return (begin + (cluster - first_data_sector) * block->BPB_SecPerClus);
 }
 
@@ -229,6 +230,22 @@ error_code read_boot_block(FILE *archive, BPB **block) {
     return 0;
 }
 
+/*
+ *  checke si un string est valide en tant que filename
+ *  */
+bool isFile(char *filename){
+    int i = 0;
+    char c = filename[i];
+    while (c!='\0'){
+        if(c == '.'){
+            return false;
+        };
+        i++;
+        c = filename[i];
+    }
+    return true;
+}
+
 /**
  * Exercice 6
  *
@@ -239,6 +256,44 @@ error_code read_boot_block(FILE *archive, BPB **block) {
  * @return un src d'erreur
  */
 error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry **entry) {
+    //pour vérifier le path que l'on a obtenu
+    int num_levels = 0;
+    int i = 0;
+    char c = path[i];
+    while (c!='\0'){
+        if(i!=0){
+            if(c == '/'){
+                num_levels++;
+            }
+        }
+        i++;
+        c = path[i];
+    }
+    i=0;
+    char *name;
+    if(num_levels>0){
+        while(i<(num_levels-1)){
+            break_up_path(path, i, name);
+            if(!isFile(name)){
+                return -1;
+            }
+            i++;
+        }
+    }
+
+    if(!archive || !block || !entry){
+        return -1;
+    }
+    //on commence a partir du premier secteur de données
+    u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+    uint32_t firstClusterAddress = 2;
+    uint32_t currentCluster = firstClusterAddress;
+    uint32_t nextCLuster;
+    while(!(currentCluster & FAT_EOC_TAG)){
+        get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
+
+        currentCluster = nextCLuster;
+    }
     return 0;
 }
 

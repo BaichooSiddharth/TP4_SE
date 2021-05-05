@@ -68,9 +68,15 @@ bool file_has_name(FAT_entry *entry, char *name) {
     if(name_dir[0]==0xE5 || name_dir[0]==0x00){
         return false;
     }
+    printf("\n");
+    for(int iter = 0; iter < 11; iter++){
+        char c = name_dir[iter];
+        printf("%c", c);
+    }
+    printf("\n");
     char current_read;
     int counter_name= 0;
-    int i = 8;
+    int i;
     u_int8_t current;
     //on check le début (avant l'extension) inspiré de la docu fat32 de microsoft
     while(counter_name<8){
@@ -271,7 +277,7 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     }
     i=0;
     char *name;
-//vérifie si on a un fichier dans le string pour le path
+    //vérifie si on a un fichier dans le string pour le path
     if(num_levels>0){
         while(i<(num_levels-1)){
             break_up_path(path, i, name);

@@ -26,8 +26,8 @@ uint8_t ilog2(uint32_t n) {
  * @return le LBA
  */
 uint32_t cluster_to_lba(BPB *block, uint32_t cluster, uint32_t first_data_sector) {
-//u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
-    u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+    u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+    //u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
     return (begin + (cluster - first_data_sector) * block->BPB_SecPerClus);
 }
 
@@ -46,7 +46,8 @@ error_code get_cluster_chain_value(BPB *block,
                                    uint32_t *value,
                                    FILE *archive) {
 
-    uint32_t FAT_start = as_uint32(block->BPB_RsvdSecCnt) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
+    //uint32_t FAT_start = as_uint32(block->BPB_RsvdSecCnt) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
+    uint32_t FAT_start = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
     uint32_t logical_address = cluster_to_lba(block, cluster, FAT_start);
     fseek(archive,logical_address,SEEK_SET);
     fread(value,1,4,archive);

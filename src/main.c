@@ -26,7 +26,7 @@ uint8_t ilog2(uint32_t n) {
  * @return le LBA
  */
 uint32_t cluster_to_lba(BPB *block, uint32_t cluster, uint32_t first_data_sector) {
-    u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+    u_int32_t begin = as_uint16(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
     //u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
     return (begin + (cluster - first_data_sector) * block->BPB_SecPerClus);
 }
@@ -46,7 +46,7 @@ error_code get_cluster_chain_value(BPB *block,
                                    uint32_t *value,
                                    FILE *archive) {
 
-    uint32_t FAT_start = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec);// + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
+    uint32_t FAT_start = as_uint16(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
     uint32_t logical_address = cluster_to_lba(block, cluster, FAT_start);
     fseek(archive,logical_address,SEEK_SET);
     fread(value,1,4,archive);
@@ -70,7 +70,7 @@ bool file_has_name(FAT_entry *entry, char *name) {
     }
     printf("\n");
     for(int iter = 0; iter < 11; iter++){
-        char c = name_dir[iter];
+        char c = (char) name_dir[iter];
         printf("%c", c);
     }
     printf("\n");
@@ -168,7 +168,7 @@ error_code break_up_path(char *path, uint8_t level, char **output) {
             }
         } else {
             if(counter == level){
-                temp[counter_word] = path[i];
+                temp[counter_word] = (char) path[i];
                 counter_word++;
             }
         }
@@ -182,7 +182,7 @@ error_code break_up_path(char *path, uint8_t level, char **output) {
         return -3;
     }
     for (i=0; i<counter_word; i++){
-        final[i] = toupper(temp[i]);
+        final[i] = (char) toupper(temp[i]);
     }
     final[i] = '\0';
     *output = final;
@@ -245,7 +245,7 @@ bool isFile(char *filename){
     while (c!='\0'){
         if(c == '.'){
             return false;
-        };
+        }
         i++;
         c = filename[i];
     }

@@ -46,8 +46,7 @@ error_code get_cluster_chain_value(BPB *block,
                                    uint32_t *value,
                                    FILE *archive) {
 
-    //uint32_t FAT_start = as_uint32(block->BPB_RsvdSecCnt) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
-    uint32_t FAT_start = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) ;//+ (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
+    uint32_t FAT_start = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
     uint32_t logical_address = cluster_to_lba(block, cluster, FAT_start);
     fseek(archive,logical_address,SEEK_SET);
     fread(value,1,4,archive);
@@ -272,6 +271,7 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     }
     i=0;
     char *name;
+//vérifie si on a un fichier dans le string pour le path
     if(num_levels>0){
         while(i<(num_levels-1)){
             break_up_path(path, i, name);
@@ -289,12 +289,68 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
     uint32_t firstClusterAddress = 2;
     uint32_t currentCluster = firstClusterAddress;
+    uint32_t current_logical_address;
     uint32_t nextCLuster;
-    while(!(currentCluster & FAT_EOC_TAG)){
-        get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
-
-        currentCluster = nextCLuster;
+    FAT_entry *temporary_entry =  malloc(sizeof(FAT_entry));
+    char **current_Name = malloc(sizeof(char *));
+    if(num_levels>0){
+        while (i<num_levels){
+            break_up_path(path, i, current_Name);
+            while(!(currentCluster & FAT_EOC_TAG)){
+                get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
+                current_logical_address = cluster_to_lba(block, currentCluster, begin);
+                fseek(archive,current_logical_address, SEEK_SET);
+                fread(temporary_entry->DIR_Name, 1, 11, archive);
+                fread(&(temporary_entry->DIR_Attr), 1, 1, archive);
+                fread(&(temporary_entry->DIR_NTRes), 1, 1, archive);
+                fread(&(temporary_entry->DIR_CrtTimeTenth), 1, 1, archive);
+                fread(temporary_entry->DIR_CrtTime, 1, 2, archive);
+                fread(temporary_entry->DIR_CrtDate, 1, 2, archive);
+                fread(temporary_entry->DIR_LstAccDate, 1, 2, archive);
+                fread(temporary_entry->DIR_FstClusHI, 1, 2, archive);
+                fread(temporary_entry->DIR_WrtTime, 1, 2, archive);
+                fread(temporary_entry->DIR_WrtDate, 1, 2, archive);
+                fread(temporary_entry->DIR_FstClusLO, 1, 2, archive);
+                fread(temporary_entry->DIR_FileSize, 1, 4, archive);
+                if(file_has_name(temporary_entry, *current_Name)){
+                    i++;
+                    begin = (as_uint32(temporary_entry->DIR_FstClusHI) << 16) + as_uint32(temporary_entry->DIR_FstClusLO);
+                    break;
+                };
+                currentCluster = nextCLuster;
+            }
+            if(currentCluster & FAT_EOC_TAG){
+                return -1;
+            }
+        }
+    } else {
+        while(!(currentCluster & FAT_EOC_TAG)){
+            get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
+            current_logical_address = cluster_to_lba(block, currentCluster, begin);
+            fseek(archive,current_logical_address, SEEK_SET);
+            fread(temporary_entry->DIR_Name, 1, 11, archive);
+            fread(&(temporary_entry->DIR_Attr), 1, 1, archive);
+            fread(&(temporary_entry->DIR_NTRes), 1, 1, archive);
+            fread(&(temporary_entry->DIR_CrtTimeTenth), 1, 1, archive);
+            fread(temporary_entry->DIR_CrtTime, 1, 2, archive);
+            fread(temporary_entry->DIR_CrtDate, 1, 2, archive);
+            fread(temporary_entry->DIR_LstAccDate, 1, 2, archive);
+            fread(temporary_entry->DIR_FstClusHI, 1, 2, archive);
+            fread(temporary_entry->DIR_WrtTime, 1, 2, archive);
+            fread(temporary_entry->DIR_WrtDate, 1, 2, archive);
+            fread(temporary_entry->DIR_FstClusLO, 1, 2, archive);
+            fread(temporary_entry->DIR_FileSize, 1, 4, archive);
+            if(file_has_name(temporary_entry, *current_Name)){
+                break;
+            }
+            currentCluster = nextCLuster;
+        }
+        if(currentCluster & FAT_EOC_TAG){
+            return -1;
+        }
     }
+    *entry = temporary_entry;
+
     return 0;
 }
 

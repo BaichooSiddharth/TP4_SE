@@ -296,6 +296,7 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     if(num_levels>0){
         while (i<num_levels){
             break_up_path(path, i, current_Name);
+            printf(*current_Name);
             while(!(currentCluster & FAT_EOC_TAG)){
                 get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
                 current_logical_address = cluster_to_lba(block, currentCluster, begin);
@@ -324,6 +325,8 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
             }
         }
     } else {
+        break_up_path(path, 0, current_Name);
+        printf(*current_Name);
         while(!(currentCluster & FAT_EOC_TAG)){
             get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
             current_logical_address = cluster_to_lba(block, currentCluster, begin);

@@ -27,7 +27,6 @@ uint8_t ilog2(uint32_t n) {
  */
 uint32_t cluster_to_lba(BPB *block, uint32_t cluster, uint32_t first_data_sector) {
     u_int32_t begin = as_uint16(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
-    //u_int32_t begin = as_uint32(block->BPB_RsvdSecCnt) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
     return (begin + (cluster - first_data_sector) * block->BPB_SecPerClus);
 }
 
@@ -287,10 +286,10 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     if(!archive || !block || !entry){
         return -1;
     }
+    int numBlocks = 0;
     //on commence a partir du premier secteur de données
     u_int32_t begin = as_uint16(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
-    uint32_t firstClusterAddress = 2;
-    uint32_t currentCluster = firstClusterAddress;
+    uint32_t currentCluster = 2;
     uint32_t current_logical_address;
     uint32_t nextCLuster;
     FAT_entry *temporary_entry =  malloc(sizeof(FAT_entry));
@@ -298,10 +297,9 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     if(num_levels>0){
         while (i<num_levels){
             break_up_path(path, i, current_Name);
-            while(!(currentCluster & FAT_EOC_TAG)){
-                get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
-                current_logical_address = cluster_to_lba(block, currentCluster, begin);
-                fseek(archive,current_logical_address, SEEK_SET);
+            current_logical_address = cluster_to_lba(block, currentCluster, begin);
+            fseek(archive,current_logical_address, SEEK_SET);
+            while(numBlocks < 16){
                 fread(temporary_entry->DIR_Name, 1, 11, archive);
                 fread(&(temporary_entry->DIR_Attr), 1, 1, archive);
                 fread(&(temporary_entry->DIR_NTRes), 1, 1, archive);
@@ -317,20 +315,21 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
                 if(file_has_name(temporary_entry, *current_Name)){
                     i++;
                     begin = (as_uint16(temporary_entry->DIR_FstClusHI) << 16) + as_uint16(temporary_entry->DIR_FstClusLO);
+                    get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
+                    currentCluster = nextCLuster;
                     break;
                 }
-                currentCluster = nextCLuster;
+                numBlocks++;
             }
-            if(currentCluster & FAT_EOC_TAG){
+            if(numBlocks == 16){
                 return -1;
             }
         }
     } else {
         break_up_path(path, 0, current_Name);
-        while(!(currentCluster & FAT_EOC_TAG)){
-            get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
-            current_logical_address = cluster_to_lba(block, currentCluster, begin);
-            fseek(archive,current_logical_address, SEEK_SET);
+        current_logical_address = cluster_to_lba(block, currentCluster, begin);
+        fseek(archive,current_logical_address, SEEK_SET);
+        while(numBlocks < 16){
             fread(temporary_entry->DIR_Name, 1, 11, archive);
             fread(&(temporary_entry->DIR_Attr), 1, 1, archive);
             fread(&(temporary_entry->DIR_NTRes), 1, 1, archive);
@@ -346,9 +345,9 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
             if(file_has_name(temporary_entry, *current_Name)){
                 break;
             }
-            currentCluster = nextCLuster;
+            numBlocks++;
         }
-        if(currentCluster & FAT_EOC_TAG){
+        if(numBlocks == 16){
             return -1;
         }
     }

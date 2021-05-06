@@ -19,4 +19,5 @@ singletest: clean install
 
 alltests: printnames clean install
 	unzip floppy.zip
+	mv newfloppy.img floppy.img
 	python3 runall.py

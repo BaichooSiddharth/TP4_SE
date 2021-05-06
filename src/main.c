@@ -361,6 +361,15 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     return 0;
 }
 
+
+void slice_str(const char * str, char * buffer, size_t start, size_t end)
+{
+    size_t j = 0;
+    for ( size_t i = start; i <= end; ++i ) {
+        buffer[j++] = str[i];
+    }
+    buffer[j] = 0;
+}
 /**
  * Exercice 7
  *
@@ -372,7 +381,10 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
  */
 error_code
 read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_len) {
-    uint32_t first_data_cluster = (entry->DIR_FstClusHI[0] << 16) & entry->DIR_FstClusLO[0];
+    uint32_t first_data_cluster =
+            (( (entry->DIR_FstClusHI[0]<<8) & entry->DIR_FstClusHI[1]) << 16)
+            & ((entry->DIR_FstClusLO[0]<<8) & entry->DIR_FstClusLO[1] );
+
     uint32_t next_cluster = first_data_cluster;
     int error_temp = 0;
     int bytes_per_sec = block->BPB_BytsPerSec[0];
@@ -396,7 +408,8 @@ read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_le
             max_len -= bytes_per_sec;
         }
         else{
-
+            slice_str(sector_string, sector_string, 0, max_len-1);
+            strcat(total_string, sector_string);
             break;
         }
 

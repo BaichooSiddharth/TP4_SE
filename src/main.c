@@ -361,6 +361,15 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     return 0;
 }
 
+//this function has been taken from https://stackoverflow.com/questions/26620388/c-substrings-c-string-slicing
+void slice_str(const char * str, char * buffer, size_t start, size_t end)
+{
+    size_t j = 0;
+    for ( size_t i = start; i <= end; ++i ) {
+        buffer[j++] = str[i];
+    }
+    buffer[j] = 0;
+}
 /**
  * Exercice 7
  *
@@ -372,6 +381,58 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
  */
 error_code
 read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_len) {
+    uint16_t fstClusHi = (((uint16_t)entry->DIR_FstClusHI[0])<<8) + ((uint16_t)entry->DIR_FstClusHI[1]);
+    uint16_t fstClusLo = (((uint16_t)entry->DIR_FstClusLO[0])<<8) + ((uint16_t)entry->DIR_FstClusLO[1]);
+    uint32_t first_data_cluster = (((uint32_t)fstClusHi) << 16) + (uint32_t)fstClusLo;
+
+    //ceci nous sert pour iterer le prochain cluster dans la boucle while
+    uint32_t next_cluster = first_data_cluster;
+    //code erreur sert a savoir si une fonction qu'on a appelle a une erreur
+    int error_temp = 0;
+    //le nombre de bytes par secteur
+    int bytes_per_sec = (((uint16_t)block->BPB_BytsPerSec[0])<<8) + ((uint16_t)block->BPB_BytsPerSec[1]);
+    //le contenu d'un secteur total
+    char *sector_string;
+    //le contenu de tout le fichier qui sera retourne a la fin
+    char *total_string="";
+
+    //tant que pas EOF ou corruption
+    while(next_cluster < 0x0FFFFFF8 && next_cluster > 0){
+
+        //on check voir sil y a une erreur
+        if(error_temp < 0){
+            return -1;
+        }
+
+        u_int32_t begin = as_uint16(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
+        //ici on cherche laddresse logique du cluster
+        uint32_t logical_address = cluster_to_lba(block, next_cluster,begin);
+        fseek(archive,logical_address,SEEK_SET);
+        //on lit le nombre exact de bytes du secteur
+        fread(&sector_string,1,bytes_per_sec,archive);
+
+        //si on est pas encore rendu a la limite du buffer
+        if(max_len > bytes_per_sec){
+            //on concatene tout le sector_string a la fin du total_string
+            strcat(total_string, sector_string);
+            //on diminue la longueur quon doit lire du nombre de bytes deja lus
+            max_len -= bytes_per_sec;
+        }
+        //si on est arrive a la limite du buffer
+        else{
+            //on ecrit le restant du fichier dans total_string
+            slice_str(sector_string, sector_string, 0, max_len-1);
+            strcat(total_string, sector_string);
+            break;
+        }
+
+        //on cherche le prochain cluster
+        error_temp = get_cluster_chain_value(block,next_cluster,&next_cluster,archive);
+    }
+
+    //on retourne le contenu lu
+    buff=total_string;
+    
     return 0;
 }
 

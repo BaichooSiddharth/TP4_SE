@@ -290,8 +290,8 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     //on commence a partir du premier secteur de données
     u_int32_t rootCluster = block->BPB_RootClus;
     u_int32_t FAT_start = as_uint16(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
-    u_int32_t begin = cluster_to_lba(block, rootCluster, FAT_start);
-    printf("\nbegin = %d\n", begin);
+    u_int32_t current_rootCluster = cluster_to_lba(block, rootCluster, FAT_start);
+    printf("\nbegin = %d\n", current_rootCluster);
     uint32_t currentCluster = rootCluster;
     uint32_t current_logical_address;
     uint32_t nextCLuster;
@@ -300,7 +300,7 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     if(num_levels>0){
         while (i<num_levels){
             break_up_path(path, i, current_Name);
-            current_logical_address = cluster_to_lba(block, currentCluster, begin);
+            current_logical_address = cluster_to_lba(block, currentCluster, current_rootCluster);
             fseek(archive,current_logical_address, SEEK_SET);
             while(numBlocks < 16){
                 fread(temporary_entry->DIR_Name, 1, 11, archive);
@@ -318,7 +318,7 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
                 fread(temporary_entry->DIR_FileSize, 1, 4, archive);
                 if(file_has_name(temporary_entry, *current_Name)){
                     i++;
-                    begin = (as_uint16(temporary_entry->DIR_FstClusHI) << 16) + as_uint16(temporary_entry->DIR_FstClusLO);
+                    current_rootCluster = (as_uint16(temporary_entry->DIR_FstClusHI) << 16) + as_uint16(temporary_entry->DIR_FstClusLO);
                     get_cluster_chain_value(block, currentCluster, &nextCLuster, archive);
                     currentCluster = nextCLuster;
                     break;
@@ -331,7 +331,7 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
         }
     } else {
         break_up_path(path, 0, current_Name);
-        current_logical_address = cluster_to_lba(block, currentCluster, begin);
+        current_logical_address = cluster_to_lba(block, currentCluster, current_rootCluster);
         fseek(archive,current_logical_address, SEEK_SET);
         while(numBlocks < 16){
             fread(temporary_entry->DIR_Name, 1, 11, archive);

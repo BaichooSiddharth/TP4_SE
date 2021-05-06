@@ -381,16 +381,16 @@ void slice_str(const char * str, char * buffer, size_t start, size_t end)
  */
 error_code
 read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_len) {
-    uint32_t first_data_cluster =
-            ((uint32_t)(((uint16_t)entry->DIR_FstClusHI[0]<<8) & (uint16_t)entry->DIR_FstClusHI[1]) << 16)
-            & (uint32_t)(((uint16_t)entry->DIR_FstClusLO[0]<<8) & (uint16_t)entry->DIR_FstClusLO[1] );
+    uint16_t fstClusHi = (((uint16_t)entry->DIR_FstClusHI[0])<<8) + ((uint16_t)entry->DIR_FstClusHI[1]);
+    uint16_t fstClusLo = (((uint16_t)entry->DIR_FstClusLO[0])<<8) + ((uint16_t)entry->DIR_FstClusLO[1]);
+    uint32_t first_data_cluster = (((uint32_t)fstClusHi) << 16) + (uint32_t)fstClusLo;
 
     //ceci nous sert pour iterer le prochain cluster dans la boucle while
     uint32_t next_cluster = first_data_cluster;
     //code erreur sert a savoir si une fonction qu'on a appelle a une erreur
     int error_temp = 0;
     //le nombre de bytes par secteur
-    int bytes_per_sec = ((uint16_t)block->BPB_BytsPerSec[0]<<8) & ((uint16_t)block->BPB_BytsPerSec[1]);
+    int bytes_per_sec = (((uint16_t)block->BPB_BytsPerSec[0])<<8) + ((uint16_t)block->BPB_BytsPerSec[1]);
     //le contenu d'un secteur total
     char *sector_string;
     //le contenu de tout le fichier qui sera retourne a la fin

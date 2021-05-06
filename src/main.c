@@ -404,9 +404,9 @@ read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_le
             return -1;
         }
 
+        u_int32_t begin = as_uint16(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + ((block->BPB_NumFATs) * as_uint32(block->BPB_FATSz32));
         //ici on cherche laddresse logique du cluster
-        uint32_t logical_address = cluster_to_lba(block, next_cluster,532480);
-        printf("%s",logical_address);
+        uint32_t logical_address = cluster_to_lba(block, next_cluster,begin);
         fseek(archive,logical_address,SEEK_SET);
         //on lit le nombre exact de bytes du secteur
         fread(&sector_string,1,bytes_per_sec,archive);

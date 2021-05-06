@@ -397,7 +397,7 @@ read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_le
     char *total_string="";
 
     //tant que pas EOF ou corruption
-    while(next_cluster < 0xFFFFFF8 && next_cluster > 0x0000000){
+    while(next_cluster < 0x0FFFFFF8 && next_cluster > 0){
 
         //on check voir sil y a une erreur
         if(error_temp < 0){

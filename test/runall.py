@@ -7,14 +7,14 @@ with open("checks.c") as f:
 matches = re.findall(r"test_.*_\d", string)
 
 dico = {
-    "test_cluster_to_lba": 1,
-    "test_next_cluster": 1,
-    "test_check_name": 1,
-    "test_path": 1,
-    "test_read_boot_block": 1,
-    "test_find_file_descriptor": 1,
-    "test_find_file_descriptor": 1,
-    "test_read_content": 1,
+    "test_cluster_to_lba": 1/8,
+    "test_next_cluster": 1/8,
+    "test_check_name": 1/8,
+    "test_path": 1/8,
+    "test_read_boot_block": 1/8,
+    "test_find_file_descriptor": 1/8,
+    "test_find_file_descriptor": 1/8,
+    "test_read_content": 1/8,
 }
 
 # tests

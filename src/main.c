@@ -289,8 +289,8 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
     int numBlocks = 0;
     //on commence a partir du premier secteur de données
     u_int32_t rootCluster = block->BPB_RootClus;
-    u_int32_t FAT_start = as_uint16(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
-    u_int32_t current_rootCluster = cluster_to_lba(block, rootCluster, FAT_start);
+//u_int32_t FAT_start = as_uint16(block->BPB_RsvdSecCnt) + as_uint32(block->BPB_HiddSec) + (block->BPB_NumFATs * as_uint32(block->BPB_FATSz32));
+    u_int32_t current_rootCluster = cluster_to_lba(block, rootCluster, 2);
     printf("\nbegin = %d\n", current_rootCluster);
     uint32_t currentCluster = rootCluster;
     uint32_t current_logical_address;

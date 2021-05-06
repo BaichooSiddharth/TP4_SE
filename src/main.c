@@ -405,7 +405,7 @@ read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_le
         }
 
         //ici on cherche laddresse logique du cluster
-        uint32_t logical_address = cluster_to_lba(block, next_cluster,1600);
+        uint32_t logical_address = cluster_to_lba(block, next_cluster,532480);
         printf("%s",logical_address);
         fseek(archive,logical_address,SEEK_SET);
         //on lit le nombre exact de bytes du secteur

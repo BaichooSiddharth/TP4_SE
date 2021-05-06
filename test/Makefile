@@ -11,9 +11,12 @@ install: installcheckelf
 	temp=$$(cd tests_build && cmake .. && make)
 	python3 clean_tests.py
 
+printnames:
+	cd .. && python3 name_validator.py
+
 singletest: clean install
 	./tests_build/check_tests $(FOO)
 
-alltests: clean install
+alltests: printnames clean install
 	unzip floppy.zip
 	python3 runall.py

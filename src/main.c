@@ -372,6 +372,40 @@ error_code find_file_descriptor(FILE *archive, BPB *block, char *path, FAT_entry
  */
 error_code
 read_file(FILE *archive, BPB *block, FAT_entry *entry, void *buff, size_t max_len) {
+    uint32_t first_data_cluster = (entry->DIR_FstClusHI[0] << 16) & entry->DIR_FstClusLO[0];
+    uint32_t next_cluster = first_data_cluster;
+    int error_temp = 0;
+    int bytes_per_sec = block->BPB_BytsPerSec[0];
+    char *sector_string;
+    char *total_string;
+
+
+    while(next_cluster < 0xFFFFFF8 && next_cluster > 0x0000000){
+
+        if(error_temp < 0){
+            return -1;
+        }
+
+        uint32_t logical_address = cluster_to_lba(block, next_cluster,first_data_cluster);
+        fseek(archive,logical_address,SEEK_SET);
+        fread(&sector_string,1,bytes_per_sec,archive);
+
+        //si on est pas encore rendu a la limite du buffer
+        if(max_len > bytes_per_sec){
+            strcat(total_string, sector_string);
+            max_len -= bytes_per_sec;
+        }
+        else{
+
+            break;
+        }
+
+        error_temp = get_cluster_chain_value(block,next_cluster,&next_cluster,archive);
+    }
+
+    buff=total_string;
+
+
     return 0;
 }
 
